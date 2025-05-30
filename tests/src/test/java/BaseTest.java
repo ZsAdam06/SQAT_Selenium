@@ -11,8 +11,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.net.URL;
 
 public abstract class BaseTest {
-    protected WebDriver driver;
-    protected WebDriverWait wait;
+    protected static WebDriver driver;
+    protected static WebDriverWait wait;
 
     public WebElement waitAndFind(By locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));

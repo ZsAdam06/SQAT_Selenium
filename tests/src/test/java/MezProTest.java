@@ -9,27 +9,39 @@ public class MezProTest extends BaseTest {
 
     @Test
     public void testLoginFormElementsExist() {
-        driver.get("https://www.mezpro.hu/customer/login");
+        LoginPage loginPage = new LoginPage();
+        loginPage.open();
 
-        WebElement emailInput = waitAndFind(By.name("email"));
-        WebElement passwordInput = waitAndFind(By.name("password"));
-        WebElement loginButton = waitAndFind(By.xpath("//button[.//span[contains(text(),'Belépés')]]"));
-
-        assertTrue(emailInput.isDisplayed());
-        assertTrue(passwordInput.isDisplayed());
-        assertTrue(loginButton.isDisplayed());
+        assertTrue(loginPage.isLoginFormVisible());
     }
 
     @Test
     public void testSuccessfulLogin() {
-        driver.get("https://www.mezpro.hu/customer/login");
+        LoginPage loginPage = new LoginPage();
+        loginPage.open();
 
-        waitAndFind(By.name("email")).sendKeys("zsoriadam10@gmail.com");
-        waitAndFind(By.name("password")).sendKeys("MezPro1234");
-        waitAndFind(By.xpath("//button[.//span[contains(text(),'Belépés')]]")).click();
+        loginPage.login("zsoriadam10@gmail.com", "MezPro1234");
 
         WebElement accountHeader = waitAndFind(By.xpath("//h1[normalize-space()='Fiókom']"));
         assertTrue(accountHeader.isDisplayed());
+    }
+
+    @Test
+    public void testLogout() {
+        // Először jelentkezzünk be
+        testSuccessfulLogin();
+
+        // Kijelentkezés URL
+        String logoutUrl = "https://www.mezpro.hu/index.php?route=account/logout";
+
+        // Kijelentkezés URL meghívása
+        driver.get(logoutUrl);
+
+        // Bejelentkezési mező lokátor
+        WebElement emailInput = waitAndFind(By.name("email"));
+
+        // Ellenőrizzük, hogy ténylegesen megjelent
+        assertTrue(emailInput.isDisplayed());
     }
 
     @Test
@@ -37,16 +49,20 @@ public class MezProTest extends BaseTest {
         // Belépés
         testSuccessfulLogin();
 
-        // Szerkesztés
-        driver.get("https://www.mezpro.hu/index.php?route=account/edit");
-        WebElement nameField = waitAndFind(By.xpath("//input[@name='lastname']"));
-        nameField.clear();
-        nameField.sendKeys("Ádám");
+        // Példányosítjuk az AccountPage objektumot
+        AccountPage accountPage = new AccountPage();
 
-        waitAndFind(By.xpath("//button[@type='submit' and normalize-space()='Tovább']")).click();
+        // Megnyitjuk a szerkesztési oldalt
+        accountPage.openEditPage();
 
-        WebElement successMessage = waitAndFind(By.cssSelector(".alert-success"));
-        assertTrue(successMessage.isDisplayed());
+        // Módosítjuk a nevet
+        accountPage.changeFirstName("Ádám");
+
+        // Beküldjük a változásokat
+        accountPage.submitChanges();
+
+        // Ellenőrizzük a sikeres mentés üzenetet
+        assertTrue(accountPage.isSuccessMessageVisible());
     }
 
     @Test
